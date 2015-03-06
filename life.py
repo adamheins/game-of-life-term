@@ -13,12 +13,16 @@ import random
 import signal
 import sys
 import time
+import os
 
 # Default values.
 PADDING = 5
 DEAD_CHAR = '.'
 FILL_CHAR = ' '
 INTERVAL = 0.05
+MIN_TERM_HEIGHT = 41
+MIN_TERM_WIDTH = 102
+
 
 class MulticellError(Exception):
     """ Represents an error that occurred with the Multicell program. """
@@ -182,6 +186,15 @@ def game(stdscr, seed, padding, interval):
 
 def main():
     """ Setup. """
+
+    # Check the terminal is large enough
+    rows, cols = os.popen('stty size', 'r').read().split()
+    if int(rows) < MIN_TERM_WIDTH or int(cols) < MIN_TERM_HEIGHT:
+        raise MulticellError((
+            "The terminal must be at least {}x{} for multicell to run, but is "
+            "currently only {}x{}. Please increase the terminal size "
+            "accordingly"
+            ).format(MIN_TERM_WIDTH, MIN_TERM_HEIGHT, rows, cols))
 
     # Parse command line arguments.
     parser = argparse.ArgumentParser()
